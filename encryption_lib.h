@@ -15,8 +15,8 @@ struct Message{
 };
 
 RSA *RSA_from_file(char* file_path, int pub_priv);
-int RSA_public_encrypt(int flen, unsigned char* from, unsigned char* to, RSA *rsa, int pad);
-int RSA_private_decrypt(int flen, unsigned char* from, unsigned char* to, RSA *rsa, int pad);
+//int RSA_public_encrypt(int length, unsigned char* ptxt, unsigned char* ctxt, RSA *rsa, int pad);
+//int RSA_private_decrypt(int length, unsigned char* ctxt, unsigned char* ptxt, RSA *rsa, int pad);
 int public_encrypt(unsigned char* data, int data_len, unsigned char* key, unsigned char* encrypted);
 int private_decrypt(unsigned char* enc_data, int data_len, unsigned char* key, unsigned char* decrypted);
 

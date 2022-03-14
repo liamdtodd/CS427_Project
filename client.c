@@ -56,13 +56,14 @@ void* get_in_addr(struct sockaddr *sa) {
         return &(((struct sockaddr_in6*)sa)->sin6_addr);
 }
 
-void client_loop(int sockfd, char *user_name) {
+void client_loop(int sockfd, char *user_name, char* pkey) {
     char *message = NULL;
     size_t len = 0;
     ssize_t message_size;
     int numbytes, n;
     char buf[MAXDATASIZE];
     char user_message[256];
+    char* ctxt = NULL;
 
     while (1) {
         memset(buf, '\0', MAXDATASIZE);
@@ -73,6 +74,10 @@ void client_loop(int sockfd, char *user_name) {
             strcpy(user_message, user_name);
             strcat(user_message, ": ");
             strcat(user_message, message);
+
+	    //encrypt the user's message
+	    int ctxt_length = public_encrypt(strlen(user_message), &user_message, pkey, ctxt);
+
             send(sockfd, user_message, strlen(user_message) - 1, 0);
             if ((numbytes = recv(sockfd, buf, MAXDATASIZE-1, 0)) == -1) {
                 perror("recv");
@@ -93,8 +98,8 @@ int main(int argc, char* argv[]) {
         int rv;
         char s[INET6_ADDRSTRLEN];
 
-        if (argc != 4) {
-                fprintf(stderr, "usage: client hostname port username\n");
+        if (argc != 5) {
+                fprintf(stderr, "usage: client hostname port username pubkey\n");
                 exit(1);
         }
 
@@ -136,7 +141,7 @@ int main(int argc, char* argv[]) {
         pthread_create(&tid, NULL, deliver_ctext, NULL);
 
         // start the client loop
-        client_loop(sockfd, argv[3]);
+        client_loop(sockfd, argv[3], argv[4]);
         // wait for thread to exit
         pthread_join(tid, NULL);
         close(sockfd);
