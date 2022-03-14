@@ -3,5 +3,7 @@
     "host_port": "51001",
     "username": "Alice",
     "server_port": 51002,
-    "server_ip": "127.0.0.1"
+    "server_ip": "127.0.0.1",
+    "public_key_path": "bob_public.pem",
+    "private_key_path": "alice_private.pem"
 }
