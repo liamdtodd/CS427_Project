@@ -1,0 +1,7 @@
+{
+    "hostname": "127.0.0.1",
+    "host_port": "51002",
+    "username": "Bob",
+    "server_port": 51001,
+    "server_ip": "127.0.0.1"
+}
