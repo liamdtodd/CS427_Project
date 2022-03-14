@@ -10,6 +10,7 @@
 #include <unistd.h>
 #include <errno.h>
 #include <string.h>
+#include <time.h>
 #include <netdb.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -79,7 +80,29 @@ void client_loop(int sockfd, char *user_name, char* pkey) {
 	    //encrypt the user's message
 	    int ctxt_length = public_encrypt(strlen(user_message), user_message, pkey, ctxt);
 
-            send(sockfd, ctxt, ctxt_length - 1, 0);
+	    //using time as associated data, concatenating time to the ctxt
+	    time_t timer;
+	    struct tm y2k = {0};
+	    double seconds;
+	    char timestr[32];
+
+	    time(&timer);
+
+	    y2k.tm_hour = 0;
+	    y2k.tm_min = 0;
+	    y2k.tm_sec = 0;
+	    y2k.tm_year = 100;
+	    y2k.tm_mon = 0;
+	    y2k.tm_mday = 1;				//setting time at Jan 1, 2000
+
+	    seconds = difftime(timer, mktime(&y2k));	//calculating seconds elapsed since Jan 1, 2000
+
+	    int sec = seconds / 1;			//turning the double into an integer
+
+	    sprintf(timestr, "%d", sec); 		//converts the int 'sec' into a string
+	    strcat(ctxt, timestr); 			//concatenating the time to the ctxt
+
+            send(sockfd, ctxt, 256, 0);
             if ((numbytes = recv(sockfd, buf, MAXDATASIZE-1, 0)) == -1) {
                 perror("recv");
                 exit(1);
