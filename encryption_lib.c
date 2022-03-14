@@ -7,8 +7,6 @@
 #include <openssl/err.h>
 #include <stdio.h>
 
-#define PADDING RSA_PKCS1_PADDING
-
 RSA *RSA_from_file(char* file_path, int pub_priv) {
     FILE* fp = fopen(file_path, "rb");
 
@@ -37,12 +35,12 @@ RSA *RSA_from_file(char* file_path, int pub_priv) {
 
 int public_encrypt(unsigned char* data, int data_len, unsigned char* file_path, unsigned char* encrypted) {
 	RSA *rsa = RSA_from_file(file_path, 1);		//file name?
-	int result = RSA_public_encrypt(data_len, data, encrypted, rsa, padding);
+	int result = RSA_public_encrypt(data_len, data, encrypted, rsa, RSA_PKCS1_OAEP_PADDING);
 	return result;
 }
 
 int private_decrypt(unsigned char* data, int data_len, unsigned char* file_path, unsigned char* decrypted) {
 	RSA *rsa = RSA_from_file(file_path, 0);		//file name?
-	int result = RSA_private_decrypt(data_len, data, decrypted, rsa, padding);
+	int result = RSA_private_decrypt(data_len, data, decrypted, rsa, RSA_PKCS1_OAEP_PADDING);
 	return result;
 }	
