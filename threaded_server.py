@@ -37,8 +37,8 @@ def decrypt_message(ciphertext, private_key):
     plaintext = private_key.decrypt(
     ciphertext,
     padding.OAEP(
-        mgf=padding.MGF1(algorithm=hashes.SHA256()),
-        algorithm=hashes.SHA256(),
+        mgf=padding.MGF1(algorithm=hashes.SHA1()),
+        algorithm=hashes.SHA1(),
         label=None)
     )
     return plaintext
