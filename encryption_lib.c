@@ -32,14 +32,14 @@ int RSA_private_decrypt(int flen, unsigned char* from, unsigned char* to, RSA *r
 
 int padding = RSA_PKCS1_PADDING;
 
-int public_encrypt(unsigned char* data, int data_len, unsigned char* key, unsigned char* encrypted) {
-	RSA *rsa = RSA_from_file(key, 1);		//file name?
+int public_encrypt(unsigned char* data, int data_len, unsigned char* file_path, unsigned char* encrypted) {
+	RSA *rsa = RSA_from_file(file_path, 1);		//file name?
 	int result = RSA_public_encrypt(data_len, data, encrypted, rsa, padding);
 	return result;
 }
 
-int private_decrypt(unsigned char* data, int data_len, unsigned char* key, unsigned char* decrypted) {
-	RSA *rsa = RSA_from_file(key, 0);		//file name?
+int private_decrypt(unsigned char* data, int data_len, unsigned char* file_path, unsigned char* decrypted) {
+	RSA *rsa = RSA_from_file(file_path, 0);		//file name?
 	int result = RSA_private_decrypt(data_len, enc_data, decrypted, rsa, padding);
 	return result;
 }	
