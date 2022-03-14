@@ -5,6 +5,9 @@ import sys
 import json
 import cryptography
 from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives import hashes
+
+from cryptography.hazmat.primitives.asymmetric import padding
 
 mutex = threading.Lock()
 
