@@ -21,7 +21,7 @@ public_key_path = data['public_key_path']
 #client_args = [hostname, host_port, username]
 #server_args = [client_ip, client_port, "&"]
 
-subprocess.run(["./client", hostname, host_port, username])
+subprocess.run(["./client", hostname, host_port, username, public_key_path])
 # subprocess.run("python3", client_ip, client_port, "&")
 
 

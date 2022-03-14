@@ -21,6 +21,7 @@
 #define PORT "51000" //port of client
 #define MAXDATASIZE 100 //max number of data
 
+/*
 void *deliver_ctext(void *arg) {
     FILE* ctext_fd;
     int i = 0, j = 0;
@@ -48,7 +49,7 @@ void *deliver_ctext(void *arg) {
     }
 
 }
-
+*/
 void* get_in_addr(struct sockaddr *sa) {
         if (sa->sa_family == AF_INET) {
                 return &(((struct sockaddr_in*)sa)->sin_addr);
@@ -63,7 +64,7 @@ void client_loop(int sockfd, char *user_name, char* pkey) {
     int numbytes, n;
     char buf[MAXDATASIZE];
     char user_message[256];
-    char* ctxt = NULL;
+    char ctxt[256];
 
     while (1) {
         memset(buf, '\0', MAXDATASIZE);
@@ -76,7 +77,7 @@ void client_loop(int sockfd, char *user_name, char* pkey) {
             strcat(user_message, message);
 
 	    //encrypt the user's message
-	    int ctxt_length = public_encrypt(strlen(user_message), &user_message, pkey, ctxt);
+	    int ctxt_length = public_encrypt(strlen(user_message), user_message, pkey, ctxt);
 
             send(sockfd, ctxt, ctxt_length - 1, 0);
             if ((numbytes = recv(sockfd, buf, MAXDATASIZE-1, 0)) == -1) {
@@ -138,12 +139,12 @@ int main(int argc, char* argv[]) {
         pthread_t tid;
 
         // start the deliver_ctext thread
-        pthread_create(&tid, NULL, deliver_ctext, NULL);
+        //pthread_create(&tid, NULL, deliver_ctext, NULL);
 
         // start the client loop
         client_loop(sockfd, argv[3], argv[4]);
         // wait for thread to exit
-        pthread_join(tid, NULL);
+        //pthread_join(tid, NULL);
         close(sockfd);
 
         return 0;
