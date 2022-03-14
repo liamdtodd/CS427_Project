@@ -1,4 +1,11 @@
 #include "encryption_lib.h"
+#include <openssl/pem.h>
+#include <openssl/ssl.h>
+#include <openssl/rsa.h>
+#include <openssl/evp.h>
+#include <openssl/bio.h>
+#include <openssl/err.h>
+#include <stdio.h>
 
 RSA *RSA_from_file(char* file_path, int pub_priv) {
     FILE* fp = fopen(file_path, "rb");
@@ -15,4 +22,24 @@ RSA *RSA_from_file(char* file_path, int pub_priv) {
     return rsa_context;
 }
 
+int RSA_public_encrypt(int flen, unsigned char* from, unsigned char* to, RSA *rsa, int padding) {
 
+}
+
+int RSA_private_decrypt(int flen, unsigned char* from, unsigned char* to, RSA *rsa, int padding) {
+
+}
+
+int padding = RSA_PKCS1_PADDING;
+
+int public_encrypt(unsigned char* data, int data_len, unsigned char* key, unsigned char* encrypted) {
+	RSA *rsa = RSA_from_file(key, 1);		//file name?
+	int result = RSA_public_encrypt(data_len, data, encrypted, rsa, padding);
+	return result;
+}
+
+int private_decrypt(unsigned char* data, int data_len, unsigned char* key, unsigned char* decrypted) {
+	RSA *rsa = RSA_from_file(key, 0);		//file name?
+	int result = RSA_private_decrypt(data_len, enc_data, decrypted, rsa, padding);
+	return result;
+}	
