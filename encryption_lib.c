@@ -7,6 +7,8 @@
 #include <openssl/err.h>
 #include <stdio.h>
 
+#define PADDING RSA_PKCS1_PADDING
+
 RSA *RSA_from_file(char* file_path, int pub_priv) {
     FILE* fp = fopen(file_path, "rb");
 
@@ -32,7 +34,6 @@ RSA *RSA_from_file(char* file_path, int pub_priv) {
 //	return 0;
 //}
 
-int padding = RSA_PKCS1_PADDING;
 
 int public_encrypt(unsigned char* data, int data_len, unsigned char* file_path, unsigned char* encrypted) {
 	RSA *rsa = RSA_from_file(file_path, 1);		//file name?
