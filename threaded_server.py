@@ -2,6 +2,7 @@ import socket
 import threading
 import socketserver
 import sys
+import json
 
 mutex = threading.Lock()
 
@@ -26,7 +27,7 @@ class ThreadedTCPRequestHandler(socketserver.BaseRequestHandler):
                 ctext_output = open("log.txt", 'a')
                 ctext_output.write(f"{data}\n")
                 ctext_output.close()
-                print(f"{data}")
+                #print(f"{data}")
             finally:
                 response = bytes("recieved", 'ascii')
                 self.request.sendall(response)
@@ -50,7 +51,21 @@ def client(ip, port, message):
 
 if __name__=="__main__":
     #HOST, PORT = "127.0.0.1", 51000
-    HOST, PORT = sys.argv[1], int(sys.argv[2], 10)
+    
+    config_file = sys.argv[1]
+
+    with open(config_file, "r") as read_file:
+        data = json.load(read_file)
+        read_file.close()
+
+    server_ip = data['server_ip']
+    server_port = data['server_port']
+    
+
+    #print(f"python3 threaded_server.py {server_ip} {server_port}")
+
+
+    HOST, PORT = server_ip, server_port
 
     # Start the server
     server = ThreadedTCPServer((HOST, PORT), ThreadedTCPRequestHandler)
@@ -59,7 +74,7 @@ if __name__=="__main__":
         ip, port =  server.server_address
 
         server_thread = threading.Thread(target=server.serve_forever)
-        #server_thread.daemon = True
+        server_thread.daemon = True
 
         server_thread.start()
         print("Server loop running in thread:", server_thread.name)
