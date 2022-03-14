@@ -13,6 +13,8 @@ print(data)
 hostname = data['hostname']
 host_port = data['host_port']
 username = data['username']
+private_key_path = data['private_key_path']
+public_key_path = data['public_key_path']
 # client_port = data['client_port']
 # client_ip = data['client_ip']
 

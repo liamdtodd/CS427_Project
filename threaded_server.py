@@ -3,6 +3,8 @@ import threading
 import socketserver
 import sys
 import json
+import cryptography
+from cryptography.hazmat.primitives import serialization
 
 mutex = threading.Lock()
 
@@ -12,18 +14,46 @@ CIPERTEXT_OUTPUT_FILE = "log.txt"
 open_file = open("log.txt", 'w')
 open_file.close()
 
+config_file = sys.argv[1]
+with open(config_file, "r") as read_file:
+    data = json.load(read_file)
+    read_file.close()
+
+server_ip = data['server_ip']
+server_port = data['server_port']
+private_key_path = data['private_key_path']
+
+with open(private_key_path, "rb") as key_file:
+    private_key = serialization.load_pem_private_key(
+        key_file.read(),
+        password=None,
+
+    )
+
+def decrypt_message(ciphertext, private_key):
+    plaintext = private_key.decrypt(
+    ciphertext,
+    padding.OAEP(
+        mgf=padding.MGF1(algorithm=hashes.SHA256()),
+        algorithm=hashes.SHA256(),
+        label=None)
+    )
+    return plaintext
+
 class ThreadedTCPRequestHandler(socketserver.BaseRequestHandler):
     def handle(self):
         while(1):
-            data = str(self.request.recv(1024), 'ascii')
-            if data == "exit()":
-                print("leaving server")
-                break
+            #data = str(self.request.recv(1024), 'ascii')
+            data = self.request.recv(1024)
+            #if data == "exit()":
+            #    print("leaving server")
+            #    break
             # message = data.decode()
             # cur_thread = threading.current_thread()
             # Acquire the lock before output file opening file for writing
             mutex.acquire()
             try:
+                ptext = decrypt_message(data, private_key)
                 ctext_output = open("log.txt", 'a')
                 ctext_output.write(f"{data}\n")
                 ctext_output.close()
@@ -52,15 +82,14 @@ def client(ip, port, message):
 if __name__=="__main__":
     #HOST, PORT = "127.0.0.1", 51000
     
-    config_file = sys.argv[1]
+    # config_file = sys.argv[1]
 
-    with open(config_file, "r") as read_file:
-        data = json.load(read_file)
-        read_file.close()
+    # with open(config_file, "r") as read_file:
+    #     data = json.load(read_file)
+    #     read_file.close()
 
-    server_ip = data['server_ip']
-    server_port = data['server_port']
-    
+    # server_ip = data['server_ip']
+    # server_port = data['server_port']
 
     #print(f"python3 threaded_server.py {server_ip} {server_port}")
 
