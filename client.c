@@ -78,7 +78,7 @@ void client_loop(int sockfd, char *user_name, char* pkey) {
 	    //encrypt the user's message
 	    int ctxt_length = public_encrypt(strlen(user_message), &user_message, pkey, ctxt);
 
-            send(sockfd, user_message, strlen(user_message) - 1, 0);
+            send(sockfd, ctxt, ctxt_length - 1, 0);
             if ((numbytes = recv(sockfd, buf, MAXDATASIZE-1, 0)) == -1) {
                 perror("recv");
                 exit(1);
