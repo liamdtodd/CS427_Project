@@ -19,6 +19,7 @@
 #include <arpa/inet.h>
 #include <pthread.h>
 #include <time.h>
+#include "encryption_lib.h"
 
 #define PORT "51000" //port of client
 #define MAXDATASIZE 100 //max number of data
@@ -42,7 +43,7 @@ void client_loop(int sockfd, char *user_name, char* pkey) {
     while (1) {
         memset(buf, '\0', MAXDATASIZE);
         memset(user_message, '\0', 256);
-        
+
         message_size = getline(&message, &len, stdin);
 
         strcpy(user_message, user_name);
@@ -73,11 +74,11 @@ void client_loop(int sockfd, char *user_name, char* pkey) {
 
         //send(sockfd, ctxt, 256, 0);
 
-        // Concatenate timestr with user_message instead of ctxt, then 
+        // Concatenate timestr with user_message instead of ctxt, then
         // send/encrypt with public_encrypt
 
-        int ctxt_length = public_encrypt((unsigned char *) user_message, 
-                                        strlen(user_message) + 1, pkey, 
+        int ctxt_length = public_encrypt((unsigned char *) user_message,
+                                        strlen(user_message) + 1, pkey,
                                         (unsigned char *) ctxt, sockfd);
 
         // ctxt gets malloc'd in public_encrypt
