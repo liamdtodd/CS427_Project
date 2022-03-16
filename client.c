@@ -43,53 +43,47 @@ void client_loop(int sockfd, char *user_name, char* pkey) {
         memset(buf, '\0', MAXDATASIZE);
         memset(user_message, '\0', 256);
         
+        message_size = getline(&message, &len, stdin);
 
-        while((message_size = getline(&message, &len, stdin)) != -1) {
-            // concatenate the message with the user_name
-            strcpy(user_message, user_name);
-            strcat(user_message, ": ");
-            strcat(user_message, message);
+        strcpy(user_message, user_name);
+        strcat(user_message, ": ");
+        strcat(user_message, message);
 
-            //using time as associated data, concatenating time to the ctxt
-            time_t timer;
-            struct tm y2k = {0};
-            double seconds;
-            char timestr[32];
+        //using time as associated data, concatenating time to the ctxt
+        time_t timer;
+        struct tm y2k = {0};
+        double seconds;
+        char timestr[32];
 
-            time(&timer);
+        time(&timer);
 
-            y2k.tm_hour = 0;
-            y2k.tm_min = 0;
-            y2k.tm_sec = 0;
-            y2k.tm_year = 100;
-            y2k.tm_mon = 0;
-            y2k.tm_mday = 1;				//setting time at Jan 1, 2000
+        y2k.tm_hour = 0;
+        y2k.tm_min = 0;
+        y2k.tm_sec = 0;
+        y2k.tm_year = 100;
+        y2k.tm_mon = 0;
+        y2k.tm_mday = 1;				//setting time at Jan 1, 2000
 
-            seconds = difftime(timer, mktime(&y2k));	//calculating seconds elapsed since Jan 1, 2000
+        seconds = difftime(timer, mktime(&y2k));	//calculating seconds elapsed since Jan 1, 2000
 
-            int sec = seconds / 1;			//turning the double into an integer
+        int sec = seconds / 1;			//turning the double into an integer
 
-            sprintf(timestr, "%d", sec); 	//converts the int 'sec' into a string
-            //strcat(ctxt, timestr); 			//concatenating the time to the ctxt
+        sprintf(timestr, "%d", sec); 	//converts the int 'sec' into a string
+        //strcat(ctxt, timestr); 			//concatenating the time to the ctxt
 
-            //send(sockfd, ctxt, 256, 0);
+        //send(sockfd, ctxt, 256, 0);
 
-            // Concatenate timestr with user_message instead of ctxt, then 
-            // send/encrypt with public_encrypt
+        // Concatenate timestr with user_message instead of ctxt, then 
+        // send/encrypt with public_encrypt
 
-            int ctxt_length = public_encrypt((unsigned char *) user_message, 
-                strlen(user_message) + 1, pkey, (unsigned char *) ctxt, sockfd);
+        int ctxt_length = public_encrypt((unsigned char *) user_message, 
+                                        strlen(user_message) + 1, pkey, 
+                                        (unsigned char *) ctxt, sockfd);
 
-            // ctxt gets malloc'd in public_encrypt
-            free(ctxt);
-            ctxt = NULL;
+        // ctxt gets malloc'd in public_encrypt
+        free(ctxt);
+        ctxt = NULL;
 
-            if ((numbytes = recv(sockfd, buf, MAXDATASIZE-1, 0)) == -1) {
-                perror("recv");
-                exit(1);
-            }
-
-        }
 
         free(message);
         message = NULL;
