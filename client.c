@@ -35,7 +35,7 @@ void client_loop(int sockfd, char *user_name, char* pkey) {
     char *message = NULL;
     size_t len = 0;
     ssize_t message_size;
-    int numbytes, n;
+    int bytes_recvd, n;
     char buf[MAXDATASIZE];
     char user_message[256];
     char* ctxt = NULL;
@@ -72,33 +72,29 @@ void client_loop(int sockfd, char *user_name, char* pkey) {
 
         seconds = difftime(timer, mktime(&y2k));	//calculating seconds elapsed since Jan 1, 2000
 
-        int sec = seconds / 1;			//turning the double into an integer
+        int sec = seconds / 1;				//turning the double into an integer
 
-        sprintf(timestr, "%d", sec); 	//converts the int 'sec' into a string
-        //strcat(ctxt, timestr); 			//concatenating the time to the ctxt
-
-        //send(sockfd, ctxt, 256, 0);
-
-        // Concatenate timestr with user_message instead of ctxt, then
+        sprintf(timestr, "%d", sec); 			//converts the int 'sec' into a string
+	strcat(user_message, timestr);			//concatenating the time to the ptxt
         // send/encrypt with public_encrypt
 
-        int ctxt_length = public_encrypt((unsigned char *) user_message,
-                                        strlen(user_message) + 1, pkey,
-                                        (unsigned char *) ctxt, sockfd);
-        
-        int bytes_recvd = recv(sockfd, buf, MAXDATASIZE-1, 0);
+        int ctxt_length = public_encrypt((unsigned char *) user_message, strlen(user_message) + 1, pkey, (unsigned char *) ctxt, sockfd);
+
+        bytes_recvd = recv(sockfd, buf, MAXDATASIZE - 1, 0);
 
         if (bytes_recvd == -1) {
                 perror("recv:");
+                break;
         }
+        // Sleep for 1 second so our timestamping method works
+        sleep(1);
+
         // ctxt gets malloc'd in public_encrypt
         free(ctxt);
         ctxt = NULL;
-
-
+    }
         free(message);
         message = NULL;
-    }
 }
 
 int main(int argc, char* argv[]) {
