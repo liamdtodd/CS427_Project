@@ -17,39 +17,11 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <pthread.h>
+#include <time.h>
 
 #define PORT "51000" //port of client
 #define MAXDATASIZE 100 //max number of data
 
-/*
-void *deliver_ctext(void *arg) {
-    FILE* ctext_fd;
-    int i = 0, j = 0;
-    struct stat file_info;
-    long last_modifed_time = -1;
-    char *buff = NULL;
-    size_t line_buf_size = 0;
-    ssize_t line_size;
-
-    // Find the most recent ctext in the log file
-    while (1) {
-        ctext_fd = fopen("log.txt", "r");
-        line_size = 1;
-        j = 1;
-        while (line_size >= 0) {
-            line_size = getline(&buff, &line_buf_size, ctext_fd);
-            j++;
-            if (j > i) {
-                printf("%s   ", buff);
-            }
-        }
-        // Update the i (current line) value and close the file
-        i = j;
-        fclose(ctext_fd);
-    }
-
-}
-*/
 void* get_in_addr(struct sockaddr *sa) {
         if (sa->sa_family == AF_INET) {
                 return &(((struct sockaddr_in*)sa)->sin_addr);
@@ -64,27 +36,31 @@ void client_loop(int sockfd, char *user_name, char* pkey) {
     int numbytes, n;
     char buf[MAXDATASIZE];
     char user_message[256];
-    char ctxt[256];
+    char* ctxt = NULL;
 
     while (1) {
         memset(buf, '\0', MAXDATASIZE);
         memset(user_message, '\0', 256);
+        
 
-        //printf("%s: ", user_name);
         while((message_size = getline(&message, &len, stdin)) != -1) {
+            // concatenate the message with the user_name
             strcpy(user_message, user_name);
             strcat(user_message, ": ");
             strcat(user_message, message);
 
-	    //encrypt the user's message
-	    int ctxt_length = public_encrypt(strlen(user_message), user_message, pkey, ctxt);
+	        // encrypt the user's message
+	        int ctxt_length = public_encrypt((unsigned char *) user_message, strlen(user_message) + 1, pkey, (unsigned char *) ctxt, sockfd);
 
-            send(sockfd, ctxt, ctxt_length - 1, 0);
+            // ctxt gets malloc'd in public_encrypt
+            free(ctxt);
+            ctxt = NULL;
+
             if ((numbytes = recv(sockfd, buf, MAXDATASIZE-1, 0)) == -1) {
                 perror("recv");
                 exit(1);
             }
-            //printf("client: '%s'\n", buf);
+
         }
 
         free(message);
@@ -98,6 +74,9 @@ int main(int argc, char* argv[]) {
         struct addrinfo hints, *servinfo, *p;
         int rv;
         char s[INET6_ADDRSTRLEN];
+
+        // Seed the time to use with RSA
+        srand(time(NULL));
 
         if (argc != 5) {
                 fprintf(stderr, "usage: client hostname port username pubkey\n");
@@ -136,15 +115,10 @@ int main(int argc, char* argv[]) {
         printf("client: connecting to %s\n", s);
 
         freeaddrinfo(servinfo);
-        pthread_t tid;
 
-        // start the deliver_ctext thread
-        //pthread_create(&tid, NULL, deliver_ctext, NULL);
-
-        // start the client loop
+        // enter the client loop to encrypt on a server
         client_loop(sockfd, argv[3], argv[4]);
-        // wait for thread to exit
-        //pthread_join(tid, NULL);
+
         close(sockfd);
 
         return 0;
