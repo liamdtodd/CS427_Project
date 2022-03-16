@@ -44,6 +44,7 @@ void client_loop(int sockfd, char *user_name, char* pkey) {
         memset(buf, '\0', MAXDATASIZE);
         memset(user_message, '\0', 256);
 
+        printf("%s: ", user_name);
         message_size = getline(&message, &len, stdin);
 
         strcpy(user_message, user_name);
