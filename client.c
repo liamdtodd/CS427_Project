@@ -19,6 +19,7 @@
 #include <arpa/inet.h>
 #include <pthread.h>
 #include <time.h>
+#include "encryption_lib.h"
 
 #define PORT "51000" //port of client
 #define MAXDATASIZE 100 //max number of data
@@ -66,19 +67,13 @@ void client_loop(int sockfd, char *user_name, char* pkey) {
 
         seconds = difftime(timer, mktime(&y2k));	//calculating seconds elapsed since Jan 1, 2000
 
-        int sec = seconds / 1;			//turning the double into an integer
+        int sec = seconds / 1;				//turning the double into an integer
 
-        sprintf(timestr, "%d", sec); 	//converts the int 'sec' into a string
-        //strcat(ctxt, timestr); 			//concatenating the time to the ctxt
-
-        //send(sockfd, ctxt, 256, 0);
-
-        // Concatenate timestr with user_message instead of ctxt, then 
+        sprintf(timestr, "%d", sec); 			//converts the int 'sec' into a string
+	strcat(user_message, timestr);			//concatenating the time to the ptxt
         // send/encrypt with public_encrypt
 
-        int ctxt_length = public_encrypt((unsigned char *) user_message, 
-                                        strlen(user_message) + 1, pkey, 
-                                        (unsigned char *) ctxt, sockfd);
+        int ctxt_length = public_encrypt((unsigned char *) user_message, strlen(user_message) + 1, pkey, (unsigned char *) ctxt, sockfd);
 
         // ctxt gets malloc'd in public_encrypt
         free(ctxt);
