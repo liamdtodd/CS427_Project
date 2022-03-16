@@ -83,8 +83,8 @@ class ThreadedTCPRequestHandler(socketserver.BaseRequestHandler):
                     print("Timestamps not equal, replay likely")
 
                 
-                print(plaintext_string)
-                print(f"Timestamp: {timestamp}")
+                print(plaintext_string, end='')
+                print(f" [timestamp: {timestamp}]")
             finally:
                 response = bytes("recieved", 'ascii')
                 self.request.sendall(response)
