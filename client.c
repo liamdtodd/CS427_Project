@@ -50,6 +50,11 @@ void client_loop(int sockfd, char *user_name, char* pkey) {
         strcat(user_message, ": ");
         strcat(user_message, message);
 
+        if (strcmp(message, "exit()\n") == 0) {
+                printf("exiting program\n");
+                break;
+        }
+
         //using time as associated data, concatenating time to the ctxt
         time_t timer;
         struct tm y2k = {0};
@@ -80,7 +85,12 @@ void client_loop(int sockfd, char *user_name, char* pkey) {
         int ctxt_length = public_encrypt((unsigned char *) user_message,
                                         strlen(user_message) + 1, pkey,
                                         (unsigned char *) ctxt, sockfd);
+        
+        int bytes_recvd = recv(sockfd, buf, MAXDATASIZE-1, 0);
 
+        if (bytes_recvd == -1) {
+                perror("recv:");
+        }
         // ctxt gets malloc'd in public_encrypt
         free(ctxt);
         ctxt = NULL;
