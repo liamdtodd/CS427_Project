@@ -17,36 +17,20 @@ CIPERTEXT_OUTPUT_FILE = "log.txt"
 open_file = open("log.txt", 'w')
 open_file.close()
 
-# config_file = sys.argv[1]
-# with open(config_file, "r") as read_file:
-#     data = json.load(read_file)
-#     read_file.close()
+config_file = sys.argv[1]
+with open(config_file, "r") as read_file:
+    data = json.load(read_file)
+    read_file.close()
 
-# server_ip = data['server_ip']
-# server_port = data['server_port']
-# private_key_path = data['private_key_path']
+server_ip = data['server_ip']
+server_port = data['server_port']
+private_key_path = data['private_key_path']
 
-# with open(private_key_path, "rb") as key_file:
-#     private_key = serialization.load_pem_private_key(
-#         key_file.read(),
-#         password=None
-#     )
-
-def get_config_info(HOST, PORT, private_key):
-    config_file = sys.argv[1]
-    with open(config_file, "r") as read_file:
-        data = json.load(read_file)
-        read_file.close()
-
-    server_ip = data['server_ip']
-    server_port = data['server_port']
-    private_key_path = data['private_key_path']
-
-    with open(private_key_path, "rb") as key_file:
-        private_key = serialization.load_pem_private_key(
-            key_file.read(),
-            password=None
-        )
+with open(private_key_path, "rb") as key_file:
+    private_key = serialization.load_pem_private_key(
+        key_file.read(),
+        password=None
+    )
 
 
 def decrypt_message(ciphertext, private_key):
@@ -66,7 +50,7 @@ class ThreadedTCPRequestHandler(socketserver.BaseRequestHandler):
         while(1):
             #data = str(self.request.recv(1024), 'ascii')
             data = self.request.recv(1024)
-            
+            #print(repr(data))
             mutex.acquire()
             try:
                 ptext = decrypt_message(data, private_key)
@@ -87,12 +71,6 @@ class ThreadedTCPRequestHandler(socketserver.BaseRequestHandler):
 class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
     pass
 
-def client(ip, port, message):
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-        sock.connect((ip, port))
-        sock.sendall(bytes(message, 'ascii'))
-        response = str(sock.recv(1024), 'ascii')
-        print("recieved: ()".format(response))
 
 if __name__=="__main__":
     HOST, PORT = server_ip, server_port

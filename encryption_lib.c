@@ -41,9 +41,6 @@ int public_encrypt(unsigned char* data, int data_len, unsigned char* file_path,
     encrypted = (unsigned char *) malloc(RSA_size(rsa));
 	int result = RSA_public_encrypt(data_len, data, encrypted, rsa, RSA_PKCS1_OAEP_PADDING);
     
-    // moved send into here to actually send a ctext
-    send(sockfd, (const void *) encrypted, result, 0);
-    
     if (result == -1) {
         printf("%s\n", "Error RSA encrypt pub");
         char err[130];
@@ -54,6 +51,7 @@ int public_encrypt(unsigned char* data, int data_len, unsigned char* file_path,
 
 	// moved send into here to actually send a ctext
     send(sockfd, (const void *) encrypted, result, 0);
+
     
     return result;
 }
@@ -65,6 +63,7 @@ int private_decrypt(unsigned char* data, int data_len, unsigned char* file_path,
 }
 
 // Old method of delivering a message to stdout
+#if 0
 void *deliver_ctext(void *arg) {
     FILE* ctext_fd;
     int i = 0, j = 0;
@@ -92,4 +91,4 @@ void *deliver_ctext(void *arg) {
     }
 
 }
-
+#endif
