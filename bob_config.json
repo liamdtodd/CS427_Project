@@ -1,8 +1,8 @@
 {
     "hostname": "127.0.0.1",
-    "host_port": "51005",
+    "host_port": "51007",
     "username": "Bob",
-    "server_port": 51004,
+    "server_port": 51008,
     "server_ip": "127.0.0.1",
     "public_key_path": "./alice_public.pem",
     "private_key_path": "./bob_private.pem"
